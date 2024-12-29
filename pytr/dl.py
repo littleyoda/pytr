@@ -76,17 +76,21 @@ class DL:
                 )
                 await self.tr.subscribe(e.subscription)
                 continue
-
             if subscription.get("type", "") == "timelineTransactions":
                 await self.tl.get_next_timeline_transactions(response)
             elif subscription.get("type", "") == "timelineActivityLog":
                 await self.tl.get_next_timeline_activity_log(response)
             elif subscription.get("type", "") == "timelineDetailV2":
-                await self.tl.process_timelineDetail(response, self)
+                try:
+                    await self.tl.process_timelineDetail(response, self)
+                except Exception as e:
+                    self.log.error(f"Error processing timelineDetail: {e}")
+                    continue
             else:
                 self.log.warning(
                     f"unmatched subscription of type '{subscription['type']}':\n{preview(response)}"
                 )
+
 
     def dl_doc(self, doc, titleText, subtitleText, subfolder=None):
         """
